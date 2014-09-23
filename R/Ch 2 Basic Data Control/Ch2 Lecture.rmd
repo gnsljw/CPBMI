@@ -1,0 +1,231 @@
+---
+title: "CPBMI R Ch2. Data Control"
+author: "JW Yi"
+date: "Tuesday, September 23, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Matrix Binding
+## Row and Column Binding
+```{r}
+mat <- matrix( 1:20, nrow=4)
+mat
+cbind(mat, c(21:24)) # Column binding
+rbind(mat, c(21:25)) # Row binding
+mat <- rbind(mat, c(21:25)) # Assign into new variable
+mat
+```
+## Binding 2 Matrices
+```{r}
+matA <- matrix(c(1:8), nrow=4)
+matB <- matrix(c(20:27), nrow=4)
+matA
+matB
+cbind(matA, matB)
+rbind(matA, matB)
+```
+## rowSums, colSums
+```{r}
+data <- matrix(c(1:8), nrow=4)
+data
+rowSums(data)
+apply(data, 1, sum)
+
+colSums(data)
+apply(data, 2, sum)
+
+rowMeans(data)
+apply(data, 1, mean)
+
+colMeans(data)
+apply(data, 2, mean)
+```
+
+# Factor : Categorical Variable
+```{r}
+bloodType <- c("A","B", "AB", "O", "O", "A", "A", "O", "B", "B")
+summary(bloodType)
+```
+## Let's change "character" class into "factor"
+```{r}
+bloodType <- factor(bloodType)
+bloodType
+summary(bloodType)
+```
+## Some data have "numeric" coding for "factor" variable. R can control "factor" variable with their own name.
+```{r}
+gender <- c(1,1,2,2,1,2,2,2,1,2)
+summary(gender)
+gender <- factor(gender, levels = c(1,2), labels = c("male", "female"))
+ # factor(data, levels = c(level 1, level 2, ... ), labels = c("name 1", "name 2", ...))
+gender
+summary(gender)
+```
+
+# Data Frame : Matrix that has multiple types of variables.
+```{r}
+intake.pre <- c(5260, 5470, 5640, 6180, 6390, 6515, 6805, 7515, 7515, 8230, 8770)
+intake.post <- c(3910, 4220, 3885, 5160, 5645, 4680, 5265, 5975, 6790, 6990, 7335)
+intake.race <- c('w', 'w', 'b', 'y', 'y', 'w', 'b', 'w', 'w', 'y', 'b')
+
+intake <- data.frame(intake.pre, intake.post, intake.race)
+intake
+```
+## Indexing Dataframe is same as matrix.
+```{r}
+intake[, 1]
+intake$intake.pre
+intake[1, ]
+```
+## We also name the columns and rows.
+```{r}
+intake <- data.frame( before = intake.pre, after=intake.post, race=intake.race )
+intake
+rownames(intake) <- c("w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w10", "w11")
+intake
+intake['w11', ]
+```
+## Summary and Check Structures.
+```{r}
+summary(intake)
+str(intake)
+```
+## Conditional Syntax of Dataframe
+```{r}
+intake [intake$before > 7000, ]
+intake [intake$before > 7000 & intake$before < 8000, ]
+intake [intake$before - intake$after > 1300 & intake$race == "w", ]
+```
+
+# List 
+## List can harbor all data structures in it.
+```{r}
+list_ex <- list(1:10, c("A","B","C"), matrix(1:4, nrow=2))
+list_ex
+summary(list_ex)
+```
+## Indexing list : [[ ]]
+```{r}
+list_ex [[1]]
+list_ex [[2]]
+list_ex [[3]]
+list_ex [[1]][5]
+```
+## Naming List
+```{r}
+list_ex <- list(vector_ex = 1:10, char_ex = c("A","B","C"), matrix_ex = matrix(1:4, nrow=2), 
+                df_ex = data.frame(pre=1:10, post=101:110))
+list_ex
+names(list_ex)
+list_ex $ df_ex[1:2, "pre"]
+```
+## Adding New Element 
+```{r}
+list_ex <- append(list_ex, list(gender=factor(c("M","F"))))
+list_ex
+```
+
+# Missing Value : NA
+```{r}
+y <- c(1,2,3,NA)
+y
+is.na(y)
+summary(y)
+
+y <- factor(c("A","B","C",NA))
+y
+
+ages <- c(48, 78, 56, 88, -999, 13, 26, -999)
+ages
+ages[ages == -999] <- NA
+ages
+summary(ages)
+sum(is.na(ages))
+```
+## Missing value NA is differ from character string "NA"
+```{r}
+is.na(NA)
+is.na("NA") 
+```
+## If data have NA, all statistic result also NA.
+```{r}
+1 + 2 + NA
+1 * 2 * NA
+NA * NA
+NA / 2
+NA > 2
+sum(ages)
+mean(ages)
+```
+## na.rm = TRUE option can solve this problem.
+```{r}
+sum(ages, na.rm = TRUE)
+mean(ages, na.rm = TRUE)
+```
+## na.omit(), complete.cases(). 
+```{r}
+weight <- c(65.4, 55, 380, 72.2, 51, NA)
+height <- c(170, 155, NA, 173, 161, 166)
+gender <- c("M", "F", "M", "M", "F", "F")
+
+patients <- data.frame(weight=weight, height=height, gender=gender)
+patients
+str(patients)
+
+na.omit (patients)
+complete.cases(patients)
+patients[complete.cases(patients), ]
+```
+## Filtering Missing Values
+```{r}
+mat <- matrix(1:50, nrow=5)
+mat[1,1] <- NA; mat[1,3] <- NA; mat[2, 2:7] <- NA; mat[4,3] <- NA
+mat
+
+dim(mat)
+na.omit(mat)
+
+mat[rowSums(is.na(mat))/dim(mat)[2] > 0.2, ]
+mat[rowSums(is.na(mat))/dim(mat)[2] > 0.1, ]
+```
+## Adding "na.rm" Arguments to Apply Function
+```{r}
+patients.sub <- patients[ ,c("weight", "height")]
+patients.sub
+apply(patients.sub, 2, mean)
+apply(patients.sub, 2, mean, na.rm=TRUE)
+```
+
+# Read Data From Files
+## Read Text Files
+```{r}
+# myData <- read.table(file, header=TRUE, sep="\t", row.names=1, na.strings = c("NA", "Not Applicable", ...))
+temperature <- read.table("temperature.txt", header=TRUE, sep=" ")
+temperature
+summary(temperature)
+
+humidity <- read.table("humidity.txt", header=FALSE, sep=",", na.strings=c(".","NA"))
+humidity
+colnames(humidity) <- c("area", "humidity")
+head(humidity, n=2)
+summary(humidity)
+```
+## Write Data into Text Files
+```{r}
+# write.table(data, file="file name", sep="seperator", quote=FALSE, row.names=TRUE, ...)
+tempF <- temperature[ ,"temperature"] * 9/5 + 32
+tempF
+
+cbind(temperature, data.frame(tempF = tempF))
+temperature <- cbind(temperature, data.frame(tempF = tempF))
+
+write.table(temperature, file="tempF.txt", sep="\t", quote=FALSE, row.names=FALSE)
+```
+## Write and Read Data into RDS files
+```{r}
+# saveRDS(data, "filename.rds")
+# dat <- readRDS("filename.rds")
+```
