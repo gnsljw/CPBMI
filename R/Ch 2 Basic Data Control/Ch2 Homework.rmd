@@ -1,0 +1,60 @@
+R Chapter 2. Homework
+=====================
+# Problem 1
+1) Read text file, saving into a variable
+```{r}
+expr <- read.table("D://Work/R/gene_expression.txt", header = TRUE, sep='\t')
+```
+
+2) Mean of each genes.
+```{r}
+rowMeans(expr, na.rm=TRUE)
+```
+
+3) Finding missing value rate > 20%
+```{r}
+expr[rowSums(is.na(expr))/dim(expr)[2] >= 0.2,]
+```
+
+4) Saving into a new variable with missing value rate under 20%
+```{r}
+expr_na_rm <- expr[rowSums(is.na(expr))/dim(expr)[2] < 0.2,]
+expr_na_rm
+```
+
+# Problem 2
+1) Read text file, saving into a variable
+```{r}
+birthwt <- read.table("D://Work/R/birthwt.txt", header = TRUE, sep=' ')
+```
+
+2) Converting numeric variable into Factor variable
+```{r}
+birthwt$low <- factor(birthwt$low, levels = c(0,1), labels = c("no","yes"))
+birthwt$race <- factor(birthwt$race, levels=c(1,2,3), labels=c("white","black","other"))
+birthwt$smoke <- factor(birthwt$smoke, levels=c(0,1), labels=c("no","yes"))
+birthwt$ht <- factor(birthwt$ht, levels=c(0,1), labels=c("no","yes"))
+birthwt$ui <- factor(birthwt$ui, levels=c(0,1), labels=c("no","yes"))
+```
+
+3) Summary, structure
+```{r}
+summary(birthwt)
+str(birthwt)
+```
+
+4) Mean bwt according to variables
+```{r}
+attach(birthwt)
+tapply(bwt,smoke, mean)
+tapply(bwt, ht, mean)
+tapply(bwt, race, mean)
+```
+
+5) Adding bwt_kg column
+```{r}
+bwt_kg <- bwt / 1000
+birthwt <- cbind(birthwt, bwt_kg)
+head(birthwt)
+write.table(birthwt, file="D://Work/R/birthwt_add.txt", sep=' ', quote = FALSE, row.names=TRUE)
+```
