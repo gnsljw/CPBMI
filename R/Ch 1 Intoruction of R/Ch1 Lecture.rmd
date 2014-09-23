@@ -1,11 +1,9 @@
 ---
-output:
-  html_document:
-    highlight: pygments
-    theme: united
+title: "CPBMI R Ch1. Introduction of R"
+author: "JW Yi"
+date: "Tuesday, September 23, 2014"
+output: html_document
 ---
-CPBMI R CH1. Introduction of R
-==============================
 
 # Basic Introduction
 ```{r}
