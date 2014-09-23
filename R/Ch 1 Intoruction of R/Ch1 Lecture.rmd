@@ -1,0 +1,223 @@
+---
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+CPBMI R CH1. Introduction of R
+==============================
+
+# Basic Introduction
+```{r}
+2+2
+exp(-3)
+rnorm(10)
+
+x <- 30
+x
+
+weight <- 78.5
+Weight <- 110.3
+weight
+Weight
+```
+
+# " <- " vs " = "
+```{r}
+divide <- function(A,B) {A/B}
+divide (1,2)
+divide (2,1)
+
+divide (A = 2, B = 1)
+divide (A <- 2, B <- 1)
+divide (B = 2, A = 1)
+divide (B <- 2, A <- 1)
+```
+
+# Storage mode
+## Numeric
+```{r}
+value <- 605
+value
+mode(value)
+```
+## Character
+```{r}
+string <- "Hello CPBMI R"
+string
+mode(string)
+
+string_no <- "605"
+string_no
+mode(string_no)
+```
+## Logical
+```{r}
+logic <- 2<4
+logic
+mode(logic)
+```
+## Complex Number
+```{r}
+compx <- 2 + 3i
+compx
+mode(compx)
+```
+
+# Vector
+```{r}
+x1 <- c(1,2,3,4)
+x1
+length(x1)
+
+x2 <- c("A","B","C")
+x2
+length(x2)
+
+x3 <- c(1,2,"A","B")
+x3
+length(x3)
+is.vector(x3)
+```
+## Creating Vector
+```{r}
+rep(2,2)
+rep(c(2,3), each=2)
+seq(0,1, length=11)
+seq(1,9, by=2)
+c(1:10)
+1:10
+```
+## Vectorized Arithmetic
+```{r}
+weight <- c(60, 72, 57, 90, 95, 72)
+height <- c(1.75, 1.80, 1.65, 1.90, 1.74, 1.91)
+bmi <- weight / height ^ 2
+bmi
+```
+## Simple Statistics
+```{r}
+min(weight)
+min(height)
+max(weight)
+max(height)
+range(weight)
+range(height)
+mean(weight)
+mean(height)
+median(weight)
+median(height)
+var(weight)
+var(height)
+sd(weight)
+sd(height)
+cor(weight, height)
+quantile(weight)
+quantile(height)
+summary(weight)
+summary(height)
+str(weight)
+str(height)
+```
+## Indexing
+```{r}
+x <- 11:20
+x
+x[5]
+x[1:4]
+x[5] <- 99
+x[5]
+x[c(1,3,5)]
+```
+## Logical Syntax
+```{r}
+x > 15
+x[x>15]
+which(x>15)
+x[which(x>15)]
+which(x == 99)
+```
+
+# Matrix
+```{r}
+y <- matrix(1:20, nrow=5, ncol=4)
+y
+
+y <- matrix(1:20, nrow=5, ncol=4, byrow=TRUE)  # defalt byrow=FALSE
+y
+
+dim(y)
+
+t(y) # transpose matrix
+```
+## Indexing Matrix
+```{r}
+y[3,2]
+y[2,4]
+y[,1]
+y[1,]
+y[c(3,4),]
+y[3,2] <- 99
+```
+## Changing Element
+```{r}
+y
+y[5,] <- c(117,118,119,120)
+y
+y[,3] <- c(50,51,52,53,54)
+y
+y[4, c(3,4)] <- c(115,116)
+y
+```
+## Conditional Syntax
+```{r}
+y[y>100]
+which(y>100)
+which(y>100, arr.ind=TRUE)
+y[which(y>100, arr.ind=TRUE)]
+```
+## Matrix Calculation
+```{r}
+x <- matrix(c(1,2,3,4), nrow=2)
+y <- matrix(c(5,6,7,8), nrow=2)
+x
+y
+x + y
+x - y 
+x * y
+x %*% y
+x / y
+```
+
+# Naming
+## Naming Vector
+```{r}
+x <- c(10,30,40,50)
+x
+names(x) <- c("A","B","C","D")
+x
+names(x)
+x["B"]
+x[2]
+```
+## Naming Matrix Row and Column
+```{r}
+countTable <- matrix(c(189,10845,104,10933), nrow=2, byrow=TRUE)
+countTable
+rownames(countTable) <- c("Placebo", "Aspirin")
+colnames(countTable) <- c("Heart Attack", "No Heart Attack")
+countTable
+countTable["Placebo",]
+countTable["Aspirin",]
+countTable[, "No Heart Attack"]
+countTable[, "Heart Attack"]
+```
+
+# Apply : apply(matrix, margin - 1(row) or 2(col), function)
+```{r}
+X <- matrix(1:20, nrow=4)
+X
+apply(X, 1, sum) 
+apply(X, 2, mean)
+```
+
