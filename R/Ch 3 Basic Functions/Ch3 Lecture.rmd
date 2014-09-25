@@ -1,0 +1,236 @@
+---
+title: "CPBMI R Ch3."
+author: "JW Yi"
+date: "Wednesday, September 24, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Attach, Detach, Paths
+## ls(), attach()
+```{r}
+ls()
+a <- c(1,2,3)
+b <- data.frame(id=c(1,2,3), value=c("A","B","C"))
+ls()
+b$value
+
+attach(b)
+value
+```
+## search(), searchpaths()
+```{r}
+search()
+searchpaths()
+```
+## detach(), rm()
+```{r}
+detach(b)
+search()
+
+ls()
+rm(a)
+ls()
+```
+## Masking 
+```{r}
+df1 <- data.frame(id = c("A","B","C"), cost=c(1.2,3,2.2))
+df2 <- data.frame(id=c("w1", "w2", "w3"), cost=c(2.2, 5, 1.2))
+
+attach(df1)
+attach(df2)
+id
+cost
+```
+
+# with() : with( object , statement )
+```{r}
+with(df1, summary(id))
+with(df1, {
+     summary(id);
+     summary(cost);
+})
+
+with(df1, {
+     summary.id <<- summary(id)  # <<- : Global assignment operator
+     summary.cost <- summary(cost)
+})
+summary.id
+# summary.cost : Error: object 'summary.cost' not found
+```
+# Type Check and Conversion
+```{r}
+df <- data.frame(id = LETTERS[1:10], id2 = letters[1:10], val1 = 1:10, val2 = 1:10)
+df
+is.data.frame(df)
+
+df.matrix <- as.matrix(df)
+df.matrix
+```
+
+# Woking With Strings
+## Get the Length
+```{r}
+x <- c("normal_1", "normal_2", "cancer_1", "cancer_2")
+length(x) # Get the length of vector
+nchar(x[1]) # Get the length of element
+```
+## Upper / Lower case conversion
+```{r}
+toupper(x)
+tolower(x)
+```
+## Select Specific Letters
+```{r}
+substr(x, 1, 6)
+
+grep("normal", x, ignore.case=TRUE)  # ignore.case=FALSE : distinguish upper/lower case letters
+grep("cancer", x, ignore.case=TRUE)  # fixed=FALSE : regular expression
+```
+## Escape letter : \\
+```{r}
+x <- "Hello CPBMI"
+strsplit(x, "\\s")
+unlist(strsplit(x, "\\s"))
+```
+## Substitution
+```{r}
+sub("CPBMI", "CPBMI2014", x)
+```
+## Paste
+```{r}
+chisq_value <- 8.07
+degree_f <- 1
+pvalue <- 0.0045
+paste("chisq =", chisq_value, "df =", degree_f, "p-value =", pvalue, sep=" ")
+```
+
+# if / else / ifelse
+```{r}
+birthwt <- read.table("D://Work/birthwt.txt", header=T, sep=" ")
+if ( !is.factor(birthwt$smoke) ) 
+{ 
+     birthwt$smoke <- factor(birthwt$smoke) 
+} else { 
+	print("Smoke is factor.")
+}
+
+if ( !is.factor(birthwt$smoke) ) 
+{ 
+     birthwt$smoke <- factor(birthwt$smoke) 
+} else { 
+     print("Smoke is factor.")
+}
+
+ifelse(birthwt$low == 0, "low", "high")
+scores <- c(55, 70, 80, 90, 59, 87)
+
+ifelse (scores >= 60, "Pass", "Fail")
+```
+
+# For loop
+## Basic concept for "for loop"
+```{r}
+for (i in 1:5) print (i)
+for (i in 2:9) {
+     for (j in 1:9){
+          print (paste (i, "*", j, "=", i*j, sep=""))
+     }}
+```
+## for loop vs apply 
+```{r}
+mat <- matrix(rnorm(50000 * 100), nrow=50000)
+mat.rowSum <- c()
+system.time(for (i in 1:50000){mat.rowSum[i] <- sum(mat[i, ])})
+system.time(sumMat.apply <- apply(mat, 1, sum))
+```
+"Apply" is faster than "for loop".
+
+# Function
+```{r}
+mymean <- function(x) { 
+     my.mean <- mean(x)
+     return(my.mean)}
+a <- c(1,2,3,4,5)
+mymean(a)
+
+a <- c(1,2,3,4,5,NA)
+mymean(a)
+
+mymean <- function(x, remove.na = FALSE) {
+     my.mean <- mean(x, na.rm = remove.na)
+     return(my.mean)
+}
+mymean(a)
+mymean(a, remove.na = TRUE)
+
+BMI <- function(weight, height){
+     if (weight > 300 | height > 300) {
+          stop ("Too high for weight or height")}
+     return(weight / (height/100)** 2)
+}
+BMI (74, 174)
+
+mystats <- function(x, print = FALSE, ...){
+     my.mean <- mean(x, ...)
+     my.median <- median(x, ...)
+     my.sd <- sd(x, ...)
+     if (print == TRUE){
+          paste ("mean =", my.mean, "median =", my.median, "sd =", my.sd, sep = " ")
+     }
+     else { res <- list(mean = my.mean, median = my.median, sd = my.sd)
+            return (res)}
+}
+res <- mystats(birthwt$bwt)
+res
+res <- mystats(birthwt$bwt, print = TRUE, na.rm = TRUE)
+res
+```
+
+# Apply : lapply(data, col/row, function), sapply(data, col/row, function), tapply(data, group, function)
+```{r}
+lapply(birthwt[, c("lwt", "bwt")], mean)
+sapply(birthwt[, c("lwt", "bwt")], mean)
+tapply(birthwt$bwt, birthwt$race, mean)
+
+test <- list(a=1:10, b=c("A","B","C"))
+test
+unlist(test)
+unlist(lapply(birthwt[,c("lwt","bwt")], mean))
+sapply(apply(birthwt[,c("lwt","bwt")], 2, mystats), unlist)
+```
+
+# Subset : subset(df, conditions..., select=c("col1","col2",...))
+```{r}
+attach(birthwt)
+head(birthwt[(age >25 & bwt > 2500), ])
+head(subset(birthwt, age >25 & bwt > 2500))
+head(subset(birthwt, age>25 & bwt>2500, select = c("age", "smoke", "bwt")))
+```
+
+# Transform : transform(df, column name 1=variable 1, column name 2=variable 2, ...)
+```{r}
+head(cbind(birthwt, weight_kg = birthwt$bwt/1000))
+head(transform(birthwt, weight_kg = bwt/1000))
+head(transform(birthwt, weight_kg = bwt/1000, weight_pound = 2.2*bwt))
+```
+
+# Order, sort
+```{r}
+x <- c(2,5,4,8,6)
+sort(x) # arrange values
+order(x) # return index of each value
+
+ch2_birthwt <- read.table("birthwt.txt", header=TRUE, sep=" ")
+head(ch2_birthwt[order(ch2_birthwt$bwt),])
+head(ch2_birthwt[order(-ch2_birthwt$bwt),])
+head(ch2_birthwt[order(-ch2_birthwt$race, -ch2_birthwt$bwt),])
+```
+
+# Grouping Calculation : aggregate(target column, by=list(col1, col2, ...), function)
+```{r}
+aggregate(bwt, by=list(race, smoke), mean, data=ch2_birthwt)
+aggregate(list(bwt.mean=bwt), by=list(race=race, smoke=smoke), mean, data=ch2_birthwt)
+```
