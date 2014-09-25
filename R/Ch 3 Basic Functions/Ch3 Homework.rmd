@@ -1,0 +1,48 @@
+R Chapter 3. Homework
+=====================
+# Problem 1. 
+
+1) Read table
+```{r}
+expr <- read.table("D://Work/R/gene_expression.txt",header = TRUE, sep = "\t")
+head(expr)
+```
+2) Make a function that calculate mean gene expression within log2 option
+```{r}
+expr.mean <- function (expr, log2=FALSE, ...){
+  if (log2==TRUE){
+    log.expr <- log2(expr)
+    rowMeans(log.expr, na.rm=TRUE)
+  }
+  else {
+   rowMeans(expr, na.rm=TRUE)
+  }
+}  
+```
+3) Show all reuslts
+```{r}
+expr.mean(expr)
+expr.mean(expr, log2=TRUE)
+```
+
+# Problem 2
+
+1) Read table
+```{r}
+birthwt <- read.table("D://Work/R/birthwt2.txt", header = TRUE, sep = " ")
+head(birthwt)
+```
+2) Making subset variable
+```{r}
+attach(birthwt)
+birthwt.sub <- subset(birthwt, age >30 & smoke=="yes" & race=="white", select=c("low","age","bwt"))
+birthwt.sub
+```
+3) Order by bwt
+```{r}
+birthwt.sub[order(birthwt.sub$bwt),]
+```
+4) Get median value by group
+```{r}
+aggregate(list(bwt.median = bwt), by=list(low=low, smoke=smoke, ui=ui), median)
+```
