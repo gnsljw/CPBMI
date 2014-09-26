@@ -1,5 +1,5 @@
 ---
-title: "CPBMI R Ch3."
+title: "CPBMI R Ch3. Functions"
 author: "JW Yi"
 date: "Wednesday, September 24, 2014"
 output:
