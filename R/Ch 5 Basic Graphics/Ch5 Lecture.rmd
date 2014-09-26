@@ -1,0 +1,183 @@
+---
+title: "CPBMI R Ch5. Basic Graphics"
+author: "JW Yi"
+date: "Friday, September 26, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Basic plot : plot()
+## Creating plot
+```{r}
+x <- 1:5
+plot(x)
+
+x <- 1:5
+y <- exp(1:5)
+plot(x,y)
+```
+## Plot Annotation
+```{r}
+plot(x, main="This is\nmain", sub="This is sub", 
+     xlab="This is xlab", ylab="This is ylab",
+     type="o", lwd=2, col="blue", pch=24, bg="yellow", cex=1.5)
+```
+## Line types
+```{r}
+par(mfrow=c(3,2)) # Creating Multiple Canvas
+plot(x, type='o', lty=1, main=" lty='1' ")
+plot(x, type='o', lty=2, main=" lty='2' ")
+plot(x, type='o', lty=3, main=" lty='3' ")
+plot(x, type='o', lty=4, main=" lty='4' ")
+plot(x, type='o', lty=5, main=" lty='5' ")
+plot(x, type='o', lty=6, main=" lty='6' ")
+```
+## Plot character
+```{r}
+par(mfrow=c(3,3), mar=c(2,2,2,2))
+plot(x, type='p', main=" type='p' " )
+plot(x, type='l', main=" type='l' " )
+plot(x, type='b', main=" type='b' " )
+plot(x, type='c', main=" type='c' " )
+plot(x, type='o', main=" type='o' " )
+plot(x, type='h', main=" type='h' " )
+plot(x, type='s', main=" type='s' " )
+plot(x, type='S', main=" type='S' " )
+plot(x, type='n', main=" type='n' " )
+```
+
+# Histogram : hist()
+```{r}
+birthwt <- read.table("D://Work/birthwt2.txt", header=TRUE)
+attach(birthwt)
+
+par(mfrow=c(1,1), mar=c(4,2,4,2)) # mar=c(bottom, left, top, right), default=c(5,4,4,2)
+hist(age)
+hist(age, freq=FALSE) # freq=FALSE : probability density
+hist(age, breaks=c(10, 15, 17, 19, 21, 24, 25, 30, 35, 40, 45))
+hist(age, labels=c("1~14", "15~19", "20~24", "25~29", "30~34", "35~39", "40~44"))
+hist(age, labels=c("1~14", "15~19", "20~24", "25~29", "30~34", "35~39", "40~44"), col="red")
+hist(age, labels=c("1~14", "15~19", "20~24", "25~29", "30~34", "35~39", "40~44"), col="red", density=10)
+```
+
+# Quantile-Quantile Plot 
+```{r}
+qqnorm(bwt)
+qqline(bwt)
+```
+
+# Boxplot : boxplot()
+```{r}
+boxplot(age)
+boxplot(bwt~smoke, col=rainbow(2), xlab="Smoke", ylab="Birth Weight")
+boxplot(bwt~race, col=rainbow(3), xlab="Race", ylab="Birth Weight")
+boxplot(bwt~ui+race, col=c("red","red","blue","blue","green","green"))
+```
+
+# Writing Text
+```{r}
+par(mar=c(5,4,4,2))
+plot(1:10, 1:10, type="n")
+abline(h=5, v=5)
+
+text(5, 5, "Hello CPBMI", pos=1)
+text(5, 5, "Hello CPBMI", pos=2)
+text(5, 5, "Hello CPBMI", pos=3)
+text(5, 5, "Hello CPBMI", pos=4)
+
+text(5, 6, "Hello CPBMI", pos=1, offset=0, col="salmon")
+text(5, 7, "Hello CPBMI", pos=2, offset=0, col="salmon")
+text(5, 8, "Hello CPBMI", pos=3, offset=0, col="salmon")
+text(5, 9, "Hello CPBMI", pos=4, offset=0, col="salmon")
+
+text(5, 4, "Hello CPBMI", pos=1, col="red")
+text(5, 3, "Hello CPBMI", pos=1, col="blue")
+text(5, 2, "Hello CPBMI", pos=1, col="green")
+```
+
+# Barplot : barplot()
+```{r}
+barplot(c(1,2,3,4), names.arg=c("A","B","C","D"))
+tx <- table(smoke, race)
+tx
+class(tx)
+barplot(tx)
+
+barplot(tx, beside=TRUE, ylim=c(0,70), legend.text = rownames(tx), col=c("red","green"))
+b <- barplot(tx, beside=TRUE, ylim=c(0,70), legend.text = rownames(tx), col=c("red","green"))
+text(b, tx+5, as.character(tx))
+
+b
+tx
+as.character(tx)
+```
+## prop.table
+```{r}
+tx.prop <- prop.table(tx)
+b <- barplot( tx.prop, beside=TRUE, legend.text=rownames(tx.prop), ylim=c(0, 0.32), col=rainbow(2))
+text(b, tx.prop+0.01, as.character(round(tx.prop, digits=2))) 
+```
+
+# Stripchart : stripchart()
+```{r}
+stripchart(bwt ~ race)
+stripchart(bwt ~ race, vertical=TRUE)
+stripchart(bwt ~ race, method="jitter")
+stripchart(bwt ~ race, method="jitter", vertical=TRUE)
+
+boxplot(bwt ~ race, xlab="Race", ylab="Birth Weight")
+stripchart(bwt ~ race, method="jitter", col=rainbow(3), pch=16, vertical=TRUE, add=TRUE)
+```
+
+# Dotchart : dotchart()
+```{r}
+dotchart(tx)
+dotchart(tx, color=c("red", "blue"))
+tx
+```
+
+# Axis
+```{r}
+plot(1:4, 1:4, type="n", xlab="", ylab="")
+axis(1, at=c(2,3), tick=TRUE, pos=3.5, labels=c("","")) # 1 = below
+axis(2, at=c(2,3), tick=TRUE, pos=3, labels=c("",""))  # 2 = left
+axis(3, at=c(2,3), tick=TRUE, pos=1.5, labels=c("",""))  # 3 = above
+axis(4, at=c(2,3), tick=TRUE, pos=2, labels=c("",""))  # 4 = right
+```
+
+# Lines
+```{r}
+autos_data <- data.frame(cars=c(1,3,6,4,9), trucks=c(2,5,4,5,12), suvs=c(4,4,6,6,16))
+autos_data
+plot(autos_data$cars, type="o")
+plot(autos_data$trucks, type="o")
+
+max_y <- max(autos_data)
+plot(autos_data$cars, type="o", col="blue", ylim=c(0, max_y), axes=FALSE, ann=FALSE)
+
+axis(1, at=1:5, lab=c("Mon", "Tue", "Wed", "Thu", "Fri"))
+axis(2, las=1, at=c(0, 4, 8, 12, 16))
+
+title(main="Autos", col.main="red", font.main=4)
+title(xlab="Days", col.lab="dark green")
+title(ylab="Total", col.lab="dark green")
+
+legend(1, max_y, names(autos_data), cex=0.8, col=c("blue", "red", "forestgreen"),  pch=21:23, lty=1:3 )
+
+box()
+```
+
+# Pie Chart : pie()
+```{r}
+pie(c(0.2, 0.4, 0.3, 0.1), labels=c("A","B","C","D"), col=rainbow(4))
+```
+Warning : Sum of vector elements must be "1" when you make a pie chart. 
+```{r}
+rownames(autos_data) <- c("Mon", "Tue", "Wed", "Thu", "Fri")
+pie_labels <- paste( rownames(autos_data), "\n", 
+     round( prop.table(autos_data$cars), digits=4 )* 100, "%", sep="" )
+pie_labels
+pie( prop.table( autos_data$cars), labels=pie_labels, col=rainbow(5) )
+```
