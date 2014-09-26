@@ -1,0 +1,49 @@
+R Chapter 5. Homework
+=====================
+# Problem 1. Plot and correlation chech
+```{r}
+birthwt <- read.table("D://Work/R/birthwt2.txt", header=T, sep=" ")
+head(birthwt)
+attach(birthwt)
+
+plot(bwt~lwt,type="p")
+fit1 <- lm(bwt~lwt)
+summary(fit1)
+abline(fit1,col="red")
+```
+Two data have positive correlation
+
+# Problem 2. QQ plot, check normal distribution
+```{r}
+qqnorm(lwt)
+qqline(lwt)
+shapiro.test(lwt)
+```
+P-value of Shapiro.test < 0.05 => Data are not normally distributed.
+
+# Problem 3. Draw boxplot, 1
+```{r}
+boxplot(bwt~ui, xlab = "ui", ylab = "BWT")
+```
+
+# Problem 4. Draw boxplot, 2
+```{r}
+boxplot(bwt~ht, xlab = "ht", ylab = "BWT", col = c("cornsilk2","lightpink1"))
+```
+
+# Problem 5. Draw barplot
+```{r}
+tx <- table(ht, race)
+barplot(tx, beside=TRUE, legend.text = rownames(tx), col=c("azure2", "darksalmon"))
+```
+
+# Problem 6. Draw stripchart
+```{r}
+stripchart(lwt~race, vertical = TRUE, method = "jitter")
+```
+
+# Problem 7. Draw dotchart
+```{r}
+tx2 <- table(ui, race)
+dotchart(tx2, col=c("darkolivegreen4","firebrick4"), xlab = "ui", ylab = "race")
+```
