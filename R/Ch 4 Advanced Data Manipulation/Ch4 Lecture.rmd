@@ -1,0 +1,99 @@
+---
+title: "CPBMI R Ch4. Advanced Data Manipulation"
+author: "JW Yi"
+date: "Thursday, September 25, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Merge Data
+```{r}
+temperature <- read.table("D://Work/CPBMI/temperature.txt", header=TRUE, sep=" ")
+humidity <- read.table("D://Work/CPBMI/humidity.txt", header=FALSE, na.strings=c(".", "NA"), sep=",")
+colnames(humidity) <- c("area", "humidity")
+head(temperature)
+head(humidity)
+```
+## Inner join
+```{r}
+merge(temperature, humidity, by=c("area"))
+```
+## Full outer join
+```{r}
+merge(temperature, humidity, by=c("area"), all=TRUE)
+```
+## Left outer join 
+```{r}
+merge(temperature, humidity, by=c("area"), all.x=TRUE)
+```
+## Right outer join 
+```{r}
+merge(temperature, humidity, by=c("area"), all.y=TRUE)
+```
+
+# Package Installation : reshape2, dplyr packages for advanced data manipulation
+```{r}
+#install.packages("reshape2")
+#install.packages("dplyr")
+```
+
+# Reshape2 package
+## melt() : Convert "Wide format" data into "Long format"
+```{r}
+library(reshape2)
+dat.wide <- read.table("D://Work/CPBMI/dat_wide.txt", header=TRUE, sep="\t")
+dat.wide
+melt(dat.wide, id.var = c("age", "sex"))
+dat.long <- melt(dat.wide, id.var=c("age","sex"), variable.name="condition", value.name="score")
+dat.long
+```
+## dcast() : Revert "Long format" data into "Wide format"
+With aggregation
+```{r}
+dcast(dat.long, age ~ condition, mean, value.var = "score")
+dcast(dat.long, sex ~ condition, mean, value.var = "score")
+dcast(dat.long, age ~ sex, mean, value.var = "score")
+```
+Without aggregation
+```{r}
+dcast(dat.long, age + sex ~ condition, value.var = "score")
+dcast(dat.long, age + condition ~ sex, value.var = "score")
+dcast(dat.long, age ~ condition + sex, value.var = "score")
+```
+
+# dplyr package
+```{r}
+library(MASS)
+library(dplyr)
+
+birthwt_df <- tbl_df(birthwt) # tbl_df : easy looking dataframe display
+birthwt_df
+```
+## select() : Make an advanced selection
+```{r}
+select(birthwt_df, low, age, smoke, bwt) # Select specific columns
+select(birthwt_df, -c(ptl, ht, ui, ftv)) # Select columns except -c(col1, col2, ...)
+select(birthwt_df, low:smoke)   # Column selection with indexing
+```
+## filter(), arrange(), mutate()
+```{r}
+filter(birthwt_df, age == 21, smoke == 1)
+arrange(birthwt_df, age, bwt)
+arrange(birthwt_df, desc(age), desc(bwt))
+mutate(birthwt_df, bwt_kg = bwt/1000)
+```
+## group_by(), summarise()
+```{r}
+summarise(birthwt_df, bwt_mean = mean(bwt, na.rm=TRUE), bwt_median = median(bwt))
+group_smoke <- group_by(birthwt_df, smoke)
+summarise(group_smoke, count=n(), bwt_mean = mean(bwt), bwt_median = median(bwt)) # n() : counting numbers
+```
+## Chain operator : %.%
+```{r}
+birthwt_df %.%
+filter(age >= 21 & age <= 30) %.%
+group_by(race, smoke) %.%
+summarise(count=n(), bwt_mean=mean(bwt, na.rm=TRUE))
+```
