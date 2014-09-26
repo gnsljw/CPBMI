@@ -1,0 +1,45 @@
+R Chapter 4. Homework
+=====================
+# Problem 1
+
+1) Creating wide type data frame
+```{r}
+subject <- c(1,2,3,4)
+type <- c("A","B","A","B")
+control <- c(7.9, 6.3, 9.5, 11.5)
+cond1 <- c(12.3, 10.6, 13.1, 13.4)
+cond2 <- c(10.7, 11.1, 13.8, 12.9)
+dat.wide <- data.frame (subject, type, control, cond1, cond2)
+dat.wide
+```
+
+2) Convert wide type data frame into long format
+```{r}
+library(reshape2)
+library(dplyr)
+dat.long <- melt(dat.wide, id.var = c("subject", "type"), variable.name="condition", value.name="value")
+dat.long
+```
+
+3) Get mean according to each condition, using dcast()
+```{r}
+dcast(dat.long, type ~ condition, mean, value.var = "value")
+```
+
+# Problem 2
+
+1) vcd package installation
+```{r}
+# install.packages("vcd")
+require(vcd)  # same as library(vcd)
+```
+
+2) Chain operator
+```{r}
+data("Arthritis")
+A <- Arthritis
+A %.%
+filter(Age >= 30 & Age < 50) %.%
+group_by(Treatment, Sex, Improved) %.%
+summarise(count = n())
+```
