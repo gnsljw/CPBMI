@@ -1,0 +1,130 @@
+---
+title: "CPBMI R Ch7. Probability Distribution, Hypothesis Testing"
+author: "JW Yi"
+date: "Monday, September 29, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Probability Distribution Function of Normal Distribution : dnorm()
+## dnorm(z, mean=0, sd=1)
+```{r}
+z <- seq(-4, 4, by=0.01)
+plot(z, dnorm(z), type="l")
+z <- 1.96
+dnorm(z)
+abline(h=dnorm(z), v=z, col="red")
+```
+
+# Cumulative Distribution Function of Normal Distribution : pnorm()
+## pnorm(1.96)
+```{r}
+pnorm(1.96)
+z <- seq(-4, 4, by=0.01)
+plot(z, dnorm(z), type="l")
+z <- c( -4, seq(-4, 1.96, by=0.01), 1.96 )
+fz <- c( 0, dnorm( seq(-4, 1.96, by=0.01) ), 0 ) 
+polygon(z, fz, col="red", density=c(10))
+```
+## pnorm(-1.96)
+```{r}
+pnorm(-1.96)
+z <- seq(-4, 4, by=0.01) 
+plot(z, dnorm(z), type="l" )
+z <- c( -4, seq(-4, -1.96, by=0.01), -1.96 )
+fz <- c( 0, dnorm( seq(-4, -1.96, by=0.01) ), 0 ) 
+polygon(z, fz, col="red", density=c(10) )
+```
+
+## 1- pnorm()
+```{r}
+1 - pnorm(1.96)
+z <- seq(-4, 4, by=0.01)
+plot(z, dnorm(z), type="l")
+z <- c(1.96, seq(1.96, 4, by=0.01), 4)
+fz <- c(0, dnorm(seq(1.96, 4, by=0.01)), 0) 
+polygon(z, fz, col="red", density=c(10))
+```
+
+# Inverse Normal Function : qnorm()
+## qnorm()
+```{r}
+qnorm(0.025)
+qnorm(0.975)
+```
+
+# Hypothesis Testing
+## p-value
+```{r}
+2 * pnorm(-1.41)
+```
+
+## One-sample t-test
+```{r}
+intake <- c(5260, 5470, 5640, 6180, 6390, 6515, 6805, 7515, 7515, 8230, 8770)
+mu_0 <- 7725
+intake.t <- (mean(intake) - mu_0)/(sd(intake)/sqrt(length(intake)))
+intake.t
+2 * pt(intake.t, df=length(intake)-1)
+```
+
+## Plot
+```{r}
+tx <- seq(-3, 3, by=0.01)
+plot(tx, dt(tx, 10), type="l")
+qt(0.025, df=10)
+abline(v= -2.228139, col="red")
+abline(v= 2.228139, col="red")
+```
+
+## t.test(samples, mu=mu_0)
+```{r}
+mu_0 <- 7725
+t.test(intake, mu = mu_0)
+intake.t.test <- t.test(intake, mu = mu_0)
+names(intake.t.test)
+intake.t.test$statistic
+intake.t.test$p.value
+intake.t.test$conf.int
+intake.t.test$conf.int[1]
+intake.t.test$conf.int[2]
+```
+
+# Binomial Distribution  
+## dbinom(x, size=..., prob=...)
+```{r}
+dbinom(14, size=20, prob=0.5)
+```
+
+## pbinom(x, size=..., prob=...)
+```{r}
+1-pbinom(10, size=26, prob=1/4)
+x <- 0:26
+plot(x, dbinom(x, size=26, prob=1/4), type="h")
+1-sum(dbinom(0:10, size=26, prob=1/4))
+```
+
+# Chi-Square Distribution
+## dchisq()
+```{r}
+x <- seq(1, 50, 0.05)
+plot(x, dchisq(x, 1), type="l")
+lines(x, dchisq(x, 5), type="l", col="red") 
+lines(x, dchisq(x, 10), type="l", col="blue") 
+lines(x, dchisq(x, 20), type="l", col="green") 
+lines(x, dchisq(x, 40), type="l", col="cyan")
+color_list <- c("black", "red", "blue", "green", "cyan") 
+legend("topright", c("df=1", "df=5", "df=10", "df=20", "df=40"), 
+     lty=c(1,1,1,1,1), col=color_list)
+
+1-pchisq(7.977, 4) # p-value
+```
+
+# F-Distribution
+## df(), pf(), qf()
+```{r}
+qf(0.99, 2, 12)
+1-pf(15.5, 2, 12)
+```
