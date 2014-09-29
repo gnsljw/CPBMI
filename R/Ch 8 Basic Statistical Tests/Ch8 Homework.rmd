@@ -1,0 +1,90 @@
+R Chapter 8. Homework
+=====================
+# Problem 1. Birthwt data, t-test
+```{r}
+library(dplyr)
+library(reshape2)
+
+birthwt <- read.table("D://Work/birthwt2.txt", header=T, sep=' ')
+head(birthwt)
+str(birthwt)
+
+var.test(birthwt$bwt ~ birthwt$smoke)
+t.test(birthwt$bwt ~ birthwt$smoke, var.equal = T)
+```
+
+# Problem 2. Intake data, Paired t-test
+```{r}
+library(ISwR)
+attach(intake)
+str(intake)
+t.test(pre, post, paired=T)
+```
+
+# Problem 3. Intake data, Wilcoxon test
+```{r}
+wilcox.test(pre, post, paired=T, exact=F)
+```
+
+# Problem 4. Peptic ulcer table, Chi-sq test
+```{r}
+PUDtable <- matrix(c(23,7,18,13), nrow=2, byrow=T)
+rownames(PUDtable) <- c("Pirenzepine", "Trithiozine")
+colnames(PUDtable) <- c("Healed", "Not Healed")
+PUDtable
+chisq.test(PUDtable)
+```
+
+# Problem 5. C-sec rate according to shoe size
+```{r}
+shoes <- matrix(c(5,7,6,7,8,10,17,28,36,41,46,140), nrow=2, byrow=T)
+rownames(shoes) <- c("Yes","No")
+colnames(shoes) <- c("<4","4","4.5","5","5.5","6+")
+shoes
+
+prop.trend.test(shoes["Yes", ], apply(shoes, 2, sum))
+```
+
+# Problem 6. ANOVA, posthoc analysis
+```{r}
+Pop1 <- c(30,27,28,26,29,27,29)
+Pop2 <- c(29,27,24,26,25,26,27)
+Pop3 <- c(33,32,29,37,30,38,35)
+BMI <- data.frame(Pop = c(Pop1, Pop2, Pop3), type=c(rep("Pop1",7), rep("Pop2",7), rep("Pop3",7)))
+BMI
+aov.out <- aov(Pop ~ type, data=BMI)
+summary(aov.out)
+TukeyHSD(aov.out)
+plot(TukeyHSD(aov.out))
+```
+
+# Problem 7. Stress and Light
+```{r}
+Low.Control <- c(264,200,225,268,215,241,232,256,229,288,253,288,230)
+Low.Stress <- c(235,188,195,205,212,214,182,215,272,163,230,255,202)
+Mod.Control <- c(314,320,310,340,299,268,345,271,285,309,337,282,273)
+Mod.Stress <- c(283,312,291,259,216,201,267,326,241,291,269,282,257)
+
+Control.low <- data.frame(Low.Control, rep("Control", 13), rep("Low",13))
+colnames(Control.low) <- c("Length", "Stress", "Light")
+
+Stress.low <- data.frame(Low.Stress, rep("Stress", 13), rep("Low",13))
+colnames(Stress.low) <- c("Length", "Stress", "Light")
+
+Control.mod <- data.frame(Mod.Control, rep("Control", 13), rep("Moderate",13))
+colnames(Control.mod) <- c("Length", "Stress", "Light")
+
+Stress.mod <- data.frame(Mod.Stress, rep("Stress", 13), rep("Moderate",13))
+colnames(Stress.mod) <- c("Length", "Stress", "Light")
+
+Plant.table <- rbind(Control.low, Stress.low, Control.mod, Stress.mod)
+str(Plant.table)
+summary(Plant.table)
+
+attach(Plant.table)
+aov.out <- aov(Length ~ Stress * Light)
+summary(aov.out)
+interaction.plot(Stress, Light, Length)
+```
+
+There's no interaction between Stress and Light dose.
