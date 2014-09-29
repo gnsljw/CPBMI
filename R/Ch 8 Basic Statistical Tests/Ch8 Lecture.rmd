@@ -1,0 +1,167 @@
+---
+title: "CPBMI R Ch8. Basic Statistical Tests"
+author: "JW Yi"
+date: "Monday, September 29, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Check Normality : shapiro.test()
+```{r}
+library(MASS)
+attach(Pima.tr)
+shapiro.test(bmi) 
+ # H0 : This data follow normal distribution
+ # H1 : This data not follow normal distribution
+```
+This data follow normal distribution (p > 0.05)
+```{r}
+qqnorm(bmi) # Scatter Plot
+qqline(bmi) # Normality Line
+```
+
+# One-Sample T-Test
+```{r}
+t.test(bmi, mu=30)
+t.test(bmi, mu=30, alternative="less")
+t.test(bmi, mu=30, alternative="greater")
+t.test(bmi, mu=30, conf.level=0.9)
+```
+
+# Variance Test : var.test()
+```{r}
+var.test(bmi ~ type)
+```
+Variance is different between two samples. => Welch t-test
+
+# Two-Sample T-Test : t.test(data1, data2) or t.test(data ~ variable)
+```{r}
+t.test(bmi ~ type)
+```
+Same code
+```{r}
+Pima.tr.no <- Pima.tr$bmi[Pima.tr$type=="No"]
+Pima.tr.yes <- Pima.tr$bmi[Pima.tr$type=="Yes"]
+t.test(Pima.tr.no, Pima.tr.yes)
+```
+
+# Paired T-Test : t.test(data1, data2, paired=TRUE)
+```{r}
+attach(anorexia)
+boxplot(Prewt - Postwt ~ Treat, col=rainbow(3))
+summary(anorexia)
+FT <- anorexia[anorexia$Treat=="FT",]
+head(FT)
+shapiro.test(FT$Prewt - FT$Postwt)
+t.test(FT$Prewt, FT$Postwt, paired=TRUE)
+```
+
+# Non-Parametric Test 
+## Wilcoxon Signed Rank Test : wilcox.test(data1, data2, paired = TRUE)
+```{r}
+anorexia.cbt <- anorexia[anorexia$Treat=="CBT", ]
+shapiro.test(anorexia.cbt$Prewt - anorexia.cbt$Postwt)
+wilcox.test(anorexia.cbt$Prewt , anorexia.cbt$Postwt, paired=TRUE)
+```
+## Wilcoxon Rank-Sum Test(Mann-Whitney U test) : wilcox.test(data1, data2)
+```{r}
+exposure <- c(14.4, 14.2, 13.8, 16.5, 14.1, 16.6, 15.9, 15.6, 14.1, 15.3, 15.7, 16.7, 13.7, 15.3, 14.0)
+non.exposure <- c(17.4, 16.2, 17.1, 17.5, 15.0, 16.0, 16.9, 15.0, 16.3, 16.8)
+wilcox.test(exposure, non.exposure)
+```
+
+# Chi-Square Test : chist.test()
+## Goodness of Fit
+```{r}
+chisq.test(c(24,16), p=c(0.7,0.3))
+```
+## Test for Independence
+```{r}
+countTable <- matrix(c(10845, 189, 10933, 104), nrow=2, byrow=TRUE)
+rownames(countTable) <-c("Placebo", "Aspirin")
+colnames(countTable) <-c("No Heart Attack", "Heart Attack")
+countTable
+chisq.test(countTable)
+
+birthwt <- read.table("D://Work/birthwt2.txt", header=TRUE) 
+smoke_low_tb <- table(birthwt$smoke, birthwt$low)
+smoke_low_tb
+chisq.test(smoke_low_tb)
+```
+
+# Fisher's Exact Test
+```{r}
+TeaTasting <- matrix(c(3, 1, 1, 3),  nrow = 2, 
+                     dimnames = list( Guess = c("Milk", "Tea"), Truth = c("Milk", "Tea")))
+fisher.test(TeaTasting)
+```
+
+# Cocran-Armitage Trend Test : 2 * k table
+```{r}
+prop.trend.test(c(13, 7, 21), c(42, 14, 28))
+
+prop.trend.test(c(13, 10, 10), c(42, 14, 28))
+chisq.test(matrix(c(13, 29, 10, 4, 10, 18), ncol=3))
+```
+
+# McNemar's Test : binary variable
+```{r}
+mcnemar.test(matrix(c(5, 15, 5, 7), ncol=2))
+```
+
+# CrssTable()
+```{r}
+library(gmodels) 
+CrossTable(countTable, fisher=TRUE, chisq=TRUE, mcnemar=TRUE, expected=TRUE, sresid=TRUE, format="SPSS")
+```
+
+# One-Way ANOVA
+```{r}
+library(MASS)
+attach(anorexia)
+Change <-  Postwt - Prewt
+boxplot(Change ~ Treat, col=rainbow(3))
+shapiro.test(Change)
+bartlett.test(Change ~ Treat)
+aov.out  <- aov(Change ~ Treat)
+summary(aov.out)
+```
+
+## Post-Hoc Analysis
+```{r}
+TukeyHSD(aov.out)
+plot(TukeyHSD(aov.out))
+```
+
+## Two-Way ANOVA without Interaction
+```{r}
+program1 <- c(9, 12, 14, 11, 13)
+program2 <- c(10, 6, 9, 9, 10)
+program3 <- c(12, 14, 11, 13, 11)
+program4 <- c(9, 8, 11, 7, 8)
+dat <- data.frame(min=c(program1, program2, program3, program4),
+                  type=c(rep("program1", 5), rep("program2", 5), rep("program3", 5), rep("program4", 5)))
+aov.out <- aov(min ~ type, data=dat)
+summary(aov.out)
+TukeyHSD(aov.out)
+plot(TukeyHSD(aov.out))
+```
+Other Example
+```{r}
+teaching_time <- read.table("D://Work/teaching_time.txt", header=TRUE, sep=" ")
+teaching_time
+aov.out <- aov(days ~ ageGroup + method, data=teaching_time)
+summary(aov.out)
+```
+
+# Two Way Anova with Interaction
+```{r}
+summary(ToothGrowth)
+ToothGrowth$dose <- factor(ToothGrowth$dose)
+summary(ToothGrowth)
+aov.out <- aov(len ~ supp*dose, data=ToothGrowth)
+summary(aov.out)
+interaction.plot(ToothGrowth$dose, ToothGrowth$supp, ToothGrowth$len)
+```
