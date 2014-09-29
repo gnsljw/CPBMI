@@ -1,0 +1,45 @@
+R Chapter 6. Homework
+=====================
+# Problem 1. Pairwise plot
+```{r}
+library(ISwR)
+summary(hellung)
+
+attach(hellung)
+unclass(glucose)
+
+plot(log10(conc), log10(diameter),pch=c(4,5)[unclass(glucose)], col=c("red","blue")[unclass(glucose)], cex=1.5)
+legend("topright",legend = c("yes","no"), pch=c(4,5), col=c("red","blue"))
+```
+
+# Problem 2. Boxplot
+```{r}
+detach(hellung)
+library(multcomp)
+library(RColorBrewer)
+summary(cholesterol)
+attach(cholesterol)
+col <- brewer.pal(5, "Set2")
+b <- boxplot(response ~ trt, col=col)
+axis(1, at=c(3,4), tick=TRUE, pos=22, labels=c("",""))
+text(3.5, 23, "p-value < 0.01\n***")
+axis(3,at=c(3,5), tick=TRUE, pos=6, labels=c("",""))
+text(4, 4, "***\np-value < 0.001")
+```
+
+# Problem 3. Barplot with Error Bar
+```{r}
+library(dplyr)
+library(reshape2)
+chol.mean <- cholesterol %.% group_by(trt) %.% summarise (chol.mean = mean(response))
+chol.mean
+chol.sem <- cholesterol %.% group_by(trt) %.% summarise (chol.sem = sd(response)/sqrt(n()))
+chol.sem
+chol.sem.upper <- chol.mean$chol.mean + chol.sem$chol.sem
+chol.sem.lower <- chol.mean$chol.mean - chol.sem$chol.sem
+col <- brewer.pal(5, "Set2")
+bar <- barplot(as.matrix(chol.mean[,2]), beside=TRUE, col=col,ylim=c(0,25))
+arrows(as.vector(bar), chol.sem.upper, as.vector(bar), chol.sem.lower, code=3, angle=90, length=0.05)
+axis(1, at = bar, labels = unique(chol.mean$trt), tick=FALSE)
+```
+
