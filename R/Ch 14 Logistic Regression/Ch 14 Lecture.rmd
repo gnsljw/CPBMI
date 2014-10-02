@@ -1,0 +1,96 @@
+---
+title: "Ch 14 Logistic Regression"
+author: "JW Yi"
+date: "Thursday, October 02, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+
+# Logistic Regression Example
+```{r}
+library(boot)
+str(nodal)
+head(nodal)
+```
+
+## Saturated Model
+```{r}
+dat.full <- glm(r ~ aged + stage + grade + xray + acid, family=binomial, data=nodal)
+summary(dat.full)
+```
+
+## Reduced Model
+```{r}
+dat.reduced <- glm(r ~ stage + xray + acid, family=binomial, data=nodal)
+summary(dat.reduced)
+```
+
+## Deviance
+```{r}
+x2 <- 2*(logLik(dat.full)-logLik(dat.reduced))
+x2
+
+pval = 1-pchisq(x2, 2) # 2 : degree of freedom
+as.numeric(pval)
+
+anova(dat.reduced, dat.full, test="Chisq")
+```
+
+## Goodness of Fit, R^2
+```{r}
+library(ResourceSelection)
+hoslem.test(dat.reduced$y, fitted(dat.reduced))
+
+library(fmsb)
+NagelkerkeR2(dat.reduced)
+```
+
+## Odds Ratio, Confidence Interval
+```{r}
+exp(dat.reduced$coefficients)  # Odds ratio
+exp(confint(dat.reduced))  # 95% CI
+```
+
+# Hypertension Example
+```{r}
+no.yes <- c("No","Yes")
+smoking <- gl(2,1,8, no.yes)  # gl: making levels, gl(level, repeat, total count, name)
+obesity <- gl(2,2,8, no.yes)
+snoring <- gl(2,4,8, no.yes)
+n.tot <- c(60, 17, 8, 2, 187, 85, 51, 23)
+n.hyp <- c(5,2,1,0,35,13,15,8)
+data.frame(smoking, obesity, snoring, n.tot, n.hyp)
+```
+
+## (1) Response Matrix
+```{r}
+hyp.tbl <- cbind(n.hyp, n.tot-n.hyp)
+hyp.tbl  
+glm(hyp.tbl ~ smoking + obesity + snoring, family=binomial)
+```
+
+## (2) Proportion Table
+```{r}
+prop.hyp <- n.hyp/n.tot
+prop.hyp
+glm.hyp <- glm(prop.hyp ~ smoking + obesity + snoring, binomial, weights=n.tot)
+summary(glm.hyp)
+glm.hyp.reduced <- glm(prop.hyp ~ obesity + snoring, binomial, weights=n.tot)
+summary(glm.hyp.reduced)
+anova(glm.hyp, glm.hyp.reduced, test="Chisq")
+exp(cbind(OR=coef(glm.hyp.reduced), confint(glm.hyp.reduced)))
+```
+
+# Birthwt Data from MASS
+```{r}
+dat.full <- glm(low ~ age + lwt + factor(race) + smoke + ht + ui + ftv, 
+                family=binomial, data=birthwt)
+summary(dat.full)
+
+dat.reduced <- glm(low ~ lwt + factor(race) + smoke + ht + ui, family=binomial, data=birthwt)
+summary(dat.reduced)
+anova(dat.reduced, dat.full, test="Chisq")
+exp(coef(dat.reduced))
+```
