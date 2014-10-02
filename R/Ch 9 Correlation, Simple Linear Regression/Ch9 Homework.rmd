@@ -1,0 +1,25 @@
+R Chapter 9. Homework
+=====================
+# Problem 1. Correlation Test
+
+```{r}
+library(MASS)
+library(Hmisc)
+summary(cats)
+head(cats, 3)
+attach(cats)
+plot(cats)
+cor.test(Bwt, Hwt)
+rcorr(as.matrix(cats[,2:3]))
+cats.M <- subset(cats, cats$Sex == "M")
+cats.F <- subset(cats, cats$Sex == "F")
+cor.test(cats.M$Bwt, cats.M$Hwt)
+cor.test(cats.F$Bwt, cats.F$Hwt)
+```
+
+# Problem 2. Linear Regression
+```{r}
+cats.lm <- lm(Hwt ~ Bwt, data=cats)
+summary(cats.lm)
+coef(cats.lm)
+```
