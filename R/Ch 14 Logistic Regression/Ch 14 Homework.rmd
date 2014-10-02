@@ -1,0 +1,25 @@
+R Chapter 14. Homework
+======================
+1. Read Dataset
+```{r}
+library(ISwR)
+str(malaria)
+```
+
+2. Make Logistic Regression Model
+```{r}
+mal <- glm(mal ~ age + log2(ab), data=malaria)
+summary(mal)
+
+mal.reduced <- glm(mal ~ log2(ab), data=malaria)
+summary(mal.reduced)
+
+x2 <- 2*(logLik(mal) - logLik(mal.reduced))
+x2
+
+pval <- 1-pchisq(x2, 1)
+as.numeric(pval)
+
+exp(mal.reduced$coefficients)
+exp(confint(mal.reduced))
+```
