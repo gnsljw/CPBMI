@@ -1,0 +1,87 @@
+---
+title: "Ch 9 Correlation and Simple Linear Regression"
+author: "JW Yi"
+date: "Tuesday, September 30, 2014"
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+---
+# Basic Correlation Test in R
+## cor(), cor.test()
+```{r}
+attach(iris)
+cor(Sepal.Length, Petal.Width)
+cor.test(Sepal.Length, Petal.Width)
+```
+
+## All Pairwise Correlation
+```{r}
+cor(iris[,1:4])
+pairs(iris[,1:4])
+```
+
+## rcorr() from Hmisc Package
+```{r}
+# install.packages("Hmisc")
+require(Hmisc)
+rcorr(as.matrix(iris[,1:4]))  # input : matrix only
+```
+
+## Processing NA value : (1) List-wise (2) Pair-wise deletion
+```{r}
+iris.na.test <- iris[,1:4]
+iris.na.test [1,1] <- NA
+iris.na.test [3,2] <- NA
+iris.na.test [4,3] <- NA
+head(iris.na.test)
+cor(iris.na.test)
+cor(iris.na.test, use = "complete.obs")  # List-wise deletion
+cor(iris.na.test, use = "pairwise.complete.obs")  # Pair-wise deletion
+```
+
+## Spearman Correlation : cor.test(data, method = "spearman")
+```{r}
+doctorA <- c(4,1,3,2,6,5,8,7)
+doctorB <- c(5,3,1,2,6,4,7,8)
+cor.test(doctorA, doctorB, method="spearman")
+```
+
+# Simple Linear Regression 
+## lm(response ~ variable)
+```{r}
+newTest <- c(50,55,60,65,70,75,80,85,90,95,100)
+standardTest <- c(61,61,59,71,80,76,90,106,98,100,114)
+dat <- data.frame(newTest, standardTest)
+plot(standardTest ~ newTest, data = dat, xlim=c(0,110), ylim=c(0,120))
+dat.lm <- lm(standardTest ~ newTest, data=dat)
+summary(dat.lm)
+abline(dat.lm, col="red")
+```
+
+## coef(), predict()
+```{r}
+coef(dat.lm)
+predict(dat.lm, newdata = data.frame(newTest=80))
+plot(dat)
+pp <- predict(dat.lm, interval = "prediction", newdata= dat)
+pc <- predict(dat.lm, interval = "confidence", newdata= dat)
+matlines(dat$newTest, pc, lty=c(1,2,3), col="red")
+matlines(dat$newTest, pp, lty=c(1,2,3), col="blue")
+predict(dat.lm, int="c")
+predict(dat.lm, int="p")
+```
+
+## Verifying Auto Correlation : Durbin-Watson test, dwtest()
+```{r}
+par(mfrow = c(1,2))
+plot(resid(dat.lm))
+abline(1,0, col="red")
+qqnorm(resid(dat.lm))
+qqline(resid(dat.lm), col="red")
+shapiro.test(resid(dat.lm))
+#install.packages("lmtest")
+library(lmtest)
+dwtest(standardTest ~ newTest, data=dat)
+```
+There's no auto correlation. (p = 0.4074)
